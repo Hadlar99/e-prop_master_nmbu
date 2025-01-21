@@ -673,17 +673,22 @@ def generate_superimposed_sines(steps_sequence, periods):
 steps_sequence = 1000
 periods = [1000, 500, 333, 200]  # Periods in steps
 
-# Generate the sine wave
+# Generate the target sine wave
 target_signal = generate_superimposed_sines(steps_sequence, periods)
 
-# Plot the sine wave
+# Simulated network output (example: add some noise to the target signal for demonstration)
+np.random.seed(42)  # Ensure reproducibility
+network_output = target_signal + np.random.normal(0, 0.05, size=steps_sequence)
+
+# Plot the target sine wave vs. network output
 plt.figure(figsize=(10, 5))
-plt.plot(target_signal, label="Superimposed Sine Wave")
-plt.title("Generated Superimposed Sine Wave")
+plt.plot(target_signal, label="Target Sine Wave", linewidth=2)
+plt.plot(network_output, label="Network Output", linestyle="--", linewidth=2)
+plt.title("Target vs. Network Output")
 plt.xlabel("Time Steps")
 plt.ylabel("Amplitude")
 plt.legend()
 plt.grid(True)
 
 # Save the plot as a PNG file
-plt.savefig("sine_wave_plot.png")
+plt.savefig("sine_wave_comparison.png")
