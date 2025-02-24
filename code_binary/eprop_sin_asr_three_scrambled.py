@@ -284,9 +284,9 @@ nest.Connect(mm_out, nrns_out, params_conn_all_to_all, params_syn_static)
 nest.GetConnections(nrns_rec[0], nrns_rec[1:3]).set([params_init_optimizer] * 2)
 
 # Create input and output data
-sound_fet_1 = pd.read_csv("/home/harald_stabbetorp/Master/sound_fet/one_encoded_features.csv")
-sound_fet_2 = pd.read_csv("/home/harald_stabbetorp/Master/sound_fet/two_encoded_features.csv")
-sound_fet_3 = pd.read_csv("/home/harald_stabbetorp/Master/sound_fet/three_encoded_features.csv")
+sound_fet_1 = pd.read_csv("/mnt/users/hastabbe/e-prop_master_nmbu/sound_fet/one_encoded_features.csv")
+sound_fet_2 = pd.read_csv("/mnt/users/hastabbe/e-prop_master_nmbu/sound_fet/two_encoded_features.csv")
+sound_fet_3 = pd.read_csv("/mnt/users/hastabbe/e-prop_master_nmbu/sound_fet/three_encoded_features.csv")
 
 list_data = [sound_fet_1, sound_fet_2, sound_fet_3, sound_fet_1, sound_fet_2, 
              sound_fet_2, sound_fet_3, sound_fet_3, sound_fet_1, sound_fet_2]
