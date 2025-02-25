@@ -328,7 +328,7 @@ list_data = [str(item) for item in ["sound_fet_1", "sound_fet_2", "sound_fet_3",
                                     "sound_fet_2", "sound_fet_3", "sound_fet_3", "sound_fet_1", "sound_fet_2"]]
 
 # Convert list_data to 1s, 2s and 3s
-binary_array = np.array([1 if item == "sound_fet_1" else 2 if item == "sound_fet_2" else 3 for item in list_data])
+binary_array = np.array([1. if item == "sound_fet_1" else 2. if item == "sound_fet_2" else 3. for item in list_data])
 
 # Repeat each value 25 times
 final_array = np.repeat(binary_array, 25)
@@ -358,15 +358,15 @@ amplitude_times = np.arange(0.0, duration["task"], duration["step"]) + duration[
 # Append the target signal to the params_gen_rate_target list
 params_gen_rate_target = []
 
-mapping = {1: 0, 2: 0.5, 3: 1}  # Define the mapping
-params_gen_rate_target = []
-
 for num in range(1, 4):  # Adjust range to include 3
-    num_values = np.where(target_signal == num, mapping[num], 0.)
+    num_values = np.where(target_signal == num, 1., 0.)
     params_gen_rate_target.append({
         "amplitude_times": amplitude_times.astype(np.float32),
         "amplitude_values": num_values,
     })
+
+print(params_gen_rate_target)
+
 
 nest.SetStatus(gen_spk_in, params_gen_spk_in)
 nest.SetStatus(gen_rate_target, params_gen_rate_target)
@@ -588,3 +588,4 @@ cbar = plt.colorbar(cmesh, cax=axs[1, 1].inset_axes([1.1, 0.2, 0.05, 0.8]), labe
 fig.tight_layout()
 fig.savefig("weight_matrices.png")
 plt.show()
+# %%
