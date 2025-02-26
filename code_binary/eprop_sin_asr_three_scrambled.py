@@ -64,8 +64,8 @@ nest.set(**params_setup)
 
 # Create neurons
 n_in = 512  # number of input neurons
-n_ad = 600  # number of adaptive neurons
-n_reg = 600  # number of regular neurons
+n_ad = 1024  # number of adaptive neurons
+n_reg = 1024  # number of regular neurons
 n_rec = n_ad + n_reg  # number of recurrent neurons
 n_out = 3  # number of readout neurons
 
