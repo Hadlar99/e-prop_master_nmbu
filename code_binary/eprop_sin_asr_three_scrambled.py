@@ -20,7 +20,7 @@ np.random.seed(rng_seed)  # fix numpy random seed
 
 # Define timing of task
 n_batch = 1  # batch size, 1 in reference [2]
-n_iter = 500  # number of iterations, 2000 in reference [2]
+n_iter = 100  # number of iterations, 2000 in reference [2]
 
 
 steps = {
