@@ -109,7 +109,7 @@ np.random.seed(rng_seed)  # fix numpy random seed
 # The task's temporal structure is then defined, once as time steps and once as durations in milliseconds.
 
 n_batch = 1  # batch size, 1 in reference [2]
-n_iter = 2000  # number of iterations, 2000 in reference [2]
+n_iter = 2  # number of iterations, 2000 in reference [2]
 
 steps = {
     "sequence": 1000,  # time steps of one full sequence
