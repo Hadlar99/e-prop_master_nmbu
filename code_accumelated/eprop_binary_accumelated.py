@@ -22,7 +22,7 @@ np.random.seed(rng_seed)  # fix numpy random seed
 
 # Define timing of task
 n_batch = 64  # batch size, 64 in reference [2], 32 in the README to reference [2]
-n_iter = 2000  # number of iterations, 2000 in reference [2], 50 with n_batch 32 converges
+n_iter = 200  # number of iterations, 2000 in reference [2], 50 with n_batch 32 converges
 
 n_input_symbols = 2  # number of input populations, e.g. 4 = left, right, recall, noise
 n_cues = 1  # number of cues given before decision
