@@ -22,7 +22,7 @@ np.random.seed(rng_seed)  # fix numpy random seed
 
 # Define timing of task
 n_batch = 5  # batch size, 64 in reference [2], 32 in the README to reference [2]
-n_iter = 20  # number of iterations, 2000 in reference [2], 50 with n_batch 32 converges
+n_iter = 10  # number of iterations, 2000 in reference [2], 50 with n_batch 32 converges
 
 n_input_symbols = 2  # number of input populations, e.g. 4 = left, right, recall, noise
 n_cues = 1  # number of cues given before decision
@@ -297,8 +297,8 @@ nest.GetConnections(nrns_rec[0], nrns_rec[1:3]).set([params_init_optimizer] * 2)
 
 ## Create input and output
 # load the data
-data_1 = pd.read_csv("/mnt/users/hastabbe/e-prop_master_nmbu/sound_long/expanded_one_feature.csv")
-data_2 = pd.read_csv("/mnt/users/hastabbe/e-prop_master_nmbu/sound_long/expanded_two_feature.csv")
+data_1 = pd.read_csv("/home/hastabbe/e-prop_master_nmbu/sound_long/expanded_one_feature.csv")
+data_2 = pd.read_csv("/home/hastabbe/e-prop_master_nmbu/sound_long/expanded_two_feature.csv")
 # Remove the first column
 
 data_1 = data_1.iloc[:, 1:]
