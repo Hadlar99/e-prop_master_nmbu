@@ -298,8 +298,8 @@ nest.GetConnections(nrns_rec[0], nrns_rec[1:3]).set([params_init_optimizer] * 2)
 
 ## Create input and output
 # load the data
-data_1 = pd.read_csv("/home/hastabbe/e-prop_master_nmbu/sound_long/expanded_one_feature.csv")
-data_2 = pd.read_csv("/home/hastabbe/e-prop_master_nmbu/sound_long/expanded_two_feature.csv")
+data_1 = pd.read_csv("/mnt/users/hastabbe/e-prop_master_nmbu/sound_long/expanded_one_feature.csv")
+data_2 = pd.read_csv("/mnt/users/hastabbe/e-prop_master_nmbu/sound_long/expanded_two_feature.csv")
 # Remove the first column
 
 data_1 = data_1.iloc[:, 1:]
