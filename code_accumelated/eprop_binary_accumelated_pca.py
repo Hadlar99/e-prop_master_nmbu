@@ -22,8 +22,8 @@ rng_seed = 1  # numpy random seed
 np.random.seed(rng_seed)  # fix numpy random seed
 
 # Define timing of task
-n_batch = 10  # batch size, 64 in reference [2], 32 in the README to reference [2]
-n_iter = 30  # number of iterations, 2000 in reference [2], 50 with n_batch 32 converges
+n_batch = 100  # batch size, 64 in reference [2], 32 in the README to reference [2]
+n_iter = 300  # number of iterations, 2000 in reference [2], 50 with n_batch 32 converges
 
 n_input_symbols = 2  # number of input populations, e.g. 4 = left, right, recall, noise
 n_cues = 1  # number of cues given before decision
@@ -298,11 +298,11 @@ nest.GetConnections(nrns_rec[0], nrns_rec[1:3]).set([params_init_optimizer] * 2)
 
 ## Create input and output
 # load the data
-data_1 = pd.read_csv("/home/hastabbe/e-prop_master_nmbu/sound_long/expanded_one_feature.csv")
-data_2 = pd.read_csv("/home/hastabbe/e-prop_master_nmbu/sound_long/expanded_two_feature.csv")
+#data_1 = pd.read_csv("/home/hastabbe/e-prop_master_nmbu/sound_long/expanded_one_feature.csv")
+#data_2 = pd.read_csv("/home/hastabbe/e-prop_master_nmbu/sound_long/expanded_two_feature.csv")
 
-#data_1 = pd.read_csv("/mnt/users/hastabbe/e-prop_master_nmbu/sound_long/expanded_one_feature.csv")
-#data_2 = pd.read_csv("/mnt/users/hastabbe/e-prop_master_nmbu/sound_long/expanded_two_feature.csv")
+data_1 = pd.read_csv("/mnt/users/hastabbe/e-prop_master_nmbu/sound_long/expanded_one_feature.csv")
+data_2 = pd.read_csv("/mnt/users/hastabbe/e-prop_master_nmbu/sound_long/expanded_two_feature.csv")
 # Remove the first column
 
 data_1 = data_1.iloc[:, 1:]
@@ -340,40 +340,48 @@ data_pca = [data_1_pca, data_2_pca]
 def generate_evidence_accumulation_input_output(
     n_batch, n_in, input_data_list, n_cues, steps, dtype=np.float32
 ):
+    # Total time steps for the sequence
     total_steps = n_cues * (steps['cue'] + steps['spacing']) + steps['bg_noise'] + steps['recall']
-
-    # Initialize input tensor with zeros
+    
+    # Assume all input dataframes have the same number of cue features.
+    cue_feature_count = input_data_list[0].shape[1]
+    
+    # Reserve remaining neurons for noise and recall.
+    remaining = n_in - cue_feature_count
+    n_noise = remaining // 2
+    n_recall = remaining - n_noise
+    
+    # Initialize input tensor (n_batch, total_steps, n_in)
     inputs = np.zeros((n_batch, total_steps, n_in), dtype=dtype)
-
-    # Initialize output list to track chosen dataframe indices
+    
+    # List to store chosen dataframe indices per batch.
     chosen_df_indices = []
-
+    
     for batch_idx in range(n_batch):
         current_step = 0
-
-        # Randomly pick one dataframe per batch and store its index
+        # Randomly select one dataframe per batch.
         chosen_df_idx = np.random.randint(0, len(input_data_list))
         chosen_df_indices.append(chosen_df_idx)
-
         chosen_df = input_data_list[chosen_df_idx]
-        cue_feature_count = chosen_df.shape[1]
-
+        
+        # Insert cue data (with spacing before each cue)
         for cue_idx in range(n_cues):
-            # Insert spacing (just leave it zeros)
             current_step += steps['spacing']
-
-            # Insert cue data from chosen_df
             cue_data = chosen_df[:steps['cue'], :]
             inputs[batch_idx, current_step:current_step+steps['cue'], :cue_feature_count] = cue_data
             current_step += steps['cue']
-
-        # Background noise (zeros)
+        
+        # Background noise period (no data inserted for cues)
         current_step += steps['bg_noise']
-
-        # Recall signal with constant probability of 0.3 on remaining neurons
-        remaining_neurons = n_in - cue_feature_count
-        recall_data = np.random.binomial(500, 0.3, size=(steps['recall'], remaining_neurons))
-        inputs[batch_idx, current_step:current_step+steps['recall'], cue_feature_count:] = recall_data
+        
+        # Generate noise data that spans the entire sequence in its dedicated channels.
+        noise = np.random.binomial(250, 0.3, size=(total_steps, n_noise))
+        inputs[batch_idx, :, cue_feature_count:cue_feature_count+n_noise] = noise
+        
+        # Generate recall data for the recall period only, placing it in its own channels.
+        recall_data = np.random.binomial(500, 0.3, size=(steps['recall'], n_recall))
+        recall_start = current_step  # Recall period starts after bg_noise.
+        inputs[batch_idx, recall_start:recall_start+steps['recall'], cue_feature_count+n_noise:cue_feature_count+n_noise+n_recall] = recall_data
 
     return inputs.astype(dtype), chosen_df_indices
 
