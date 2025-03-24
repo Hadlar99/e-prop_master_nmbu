@@ -22,8 +22,8 @@ rng_seed = 1  # numpy random seed
 np.random.seed(rng_seed)  # fix numpy random seed
 
 # Define timing of task
-n_batch = 100  # batch size, 64 in reference [2], 32 in the README to reference [2]
-n_iter = 300  # number of iterations, 2000 in reference [2], 50 with n_batch 32 converges
+n_batch = 64  # batch size, 64 in reference [2], 32 in the README to reference [2]
+n_iter = 50  # number of iterations, 2000 in reference [2], 50 with n_batch 32 converges
 
 n_input_symbols = 2  # number of input populations, e.g. 4 = left, right, recall, noise
 n_cues = 1  # number of cues given before decision
@@ -307,9 +307,6 @@ data_2 = pd.read_csv("/mnt/users/hastabbe/e-prop_master_nmbu/sound_long/expanded
 
 data_1 = data_1.iloc[:, 1:]
 data_2 = data_2.iloc[:, 1:]
-
-print(data_1.shape)
-print(data_2.shape)
 
 data_1 = data_1.T
 data_2 = data_2.T
