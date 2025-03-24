@@ -352,7 +352,7 @@ def generate_evidence_accumulation_input_output(
         current_step = 0
 
         # Randomly pick one dataframe per batch and store its index
-        chosen_df_idx = np.random.randint(0, len(input_data_list) - 1)
+        chosen_df_idx = np.random.randint(0, len(input_data_list))
         chosen_df_indices.append(chosen_df_idx)
 
         chosen_df = input_data_list[chosen_df_idx]
