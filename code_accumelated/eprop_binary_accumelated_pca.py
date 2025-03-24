@@ -23,7 +23,7 @@ np.random.seed(rng_seed)  # fix numpy random seed
 
 # Define timing of task
 n_batch = 64  # batch size, 64 in reference [2], 32 in the README to reference [2]
-n_iter = 50  # number of iterations, 2000 in reference [2], 50 with n_batch 32 converges
+n_iter = 70  # number of iterations, 2000 in reference [2], 50 with n_batch 32 converges
 
 n_input_symbols = 2  # number of input populations, e.g. 4 = left, right, recall, noise
 n_cues = 1  # number of cues given before decision
@@ -123,7 +123,7 @@ params_nrn_out = {
     "C_m": 1.0,
     "E_L": 0.0,
     "I_e": 0.0,
-    "loss": "cross_entropy",  # loss function
+    "loss": "mean_squared_error",  # loss function
     "regular_spike_arrival": False,
     "tau_m": 20.0,
     "V_m": 0.0,
