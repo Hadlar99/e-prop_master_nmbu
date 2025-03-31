@@ -621,7 +621,6 @@ colors = {
 
 plt.rcParams.update(
     {
-        "font.sans-serif": "Arial",
         "axes.spines.right": False,
         "axes.spines.top": False,
         "axes.prop_cycle": cycler(color=[colors["blue"], colors["red"]]),
@@ -634,16 +633,21 @@ plt.rcParams.update(
 # We begin with two plots visualizing the training error of the network: the loss and the recall error, both
 # plotted against the iterations.
 
-fig, ax = plt.subplots()
+fig, axs = plt.subplots(2, 1, sharex=True)
 
-ax.plot(range(1, n_iter + 1), loss)
-ax.set_ylabel(r"$E = \frac{1}{2} \sum_{t,k} \left( y_k^t -y_k^{*,t}\right)^2$")
-ax.set_xlabel("training iteration")
-ax.set_xlim(1, n_iter)
-ax.xaxis.get_major_locator().set_params(integer=True)
+axs[0].plot(range(1, n_iter + 1), loss)
+axs[0].set_ylabel(r"$E = -\sum_{t,k} \pi_k^{*,t} \log \pi_k^t$")
+
+axs[1].plot(range(1, n_iter + 1), recall_errors)
+axs[1].set_ylabel("recall errors")
+
+axs[-1].set_xlabel("training iteration")
+axs[-1].set_xlim(1, n_iter)
+axs[-1].xaxis.get_major_locator().set_params(integer=True)
 
 fig.tight_layout()
-fig.savefig('acc_error.png')
+fig.savefig("evidence_accumulation_training_error.png")
+
 
 # %% ###########################################################################################################
 # Plot spikes and dynamic variables
@@ -675,26 +679,32 @@ def plot_spikes(ax, events, nrns, ylabel, xlims):
 
 
 for xlims in [(0, steps["sequence"]), (steps["task"] - steps["sequence"], steps["task"])]:
-    fig, axs = plt.subplots(9, 1, sharex=True, figsize=(6, 8), gridspec_kw={"hspace": 0.4, "left": 0.2})
+    fig, axs = plt.subplots(14, 1, sharex=True, figsize=(8, 14), gridspec_kw={"hspace": 0.4, "left": 0.2})
 
     plot_spikes(axs[0], events_sr, nrns_in, r"$z_i$" + "\n", xlims)
-    plot_spikes(axs[1], events_sr, nrns_rec, r"$z_j$" + "\n", xlims)
+    plot_spikes(axs[1], events_sr, nrns_reg, r"$z_j$" + "\n", xlims)
 
-    plot_recordable(axs[2], events_mm_rec, "V_m", r"$v_j$" + "\n(mV)", xlims)
-    plot_recordable(axs[3], events_mm_rec, "surrogate_gradient", r"$\psi_j$" + "\n", xlims)
-    plot_recordable(axs[4], events_mm_rec, "learning_signal", r"$L_j$" + "\n(pA)", xlims)
+    plot_recordable(axs[2], events_mm_reg, "V_m", r"$v_j$" + "\n(mV)", xlims)
+    plot_recordable(axs[3], events_mm_reg, "surrogate_gradient", r"$\psi_j$" + "\n", xlims)
+    plot_recordable(axs[4], events_mm_reg, "learning_signal", r"$L_j$" + "\n(pA)", xlims)
 
-    plot_recordable(axs[5], events_mm_out, "V_m", r"$v_k$" + "\n(mV)", xlims)
-    plot_recordable(axs[6], events_mm_out, "target_signal", r"$y^*_k$" + "\n", xlims)
-    plot_recordable(axs[7], events_mm_out, "readout_signal", r"$y_k$" + "\n", xlims)
-    plot_recordable(axs[8], events_mm_out, "error_signal", r"$y_k-y^*_k$" + "\n", xlims)
+    plot_spikes(axs[5], events_sr, nrns_ad, r"$z_j$" + "\n", xlims)
+
+    plot_recordable(axs[6], events_mm_ad, "V_m", r"$v_j$" + "\n(mV)", xlims)
+    plot_recordable(axs[7], events_mm_ad, "surrogate_gradient", r"$\psi_j$" + "\n", xlims)
+    plot_recordable(axs[8], events_mm_ad, "V_th_adapt", r"$A_j$" + "\n(mV)", xlims)
+    plot_recordable(axs[9], events_mm_ad, "learning_signal", r"$L_j$" + "\n(pA)", xlims)
+
+    plot_recordable(axs[10], events_mm_out, "V_m", r"$v_k$" + "\n(mV)", xlims)
+    plot_recordable(axs[11], events_mm_out, "target_signal", r"$\pi^*_k$" + "\n", xlims)
+    plot_recordable(axs[12], events_mm_out, "readout_signal", r"$\pi_k$" + "\n", xlims)
+    plot_recordable(axs[13], events_mm_out, "error_signal", r"$\pi_k-\pi^*_k$" + "\n", xlims)
 
     axs[-1].set_xlabel(r"$t$ (ms)")
     axs[-1].set_xlim(*xlims)
 
     fig.align_ylabels()
-
-fig.savefig('acc_spikes.png')
+    fig.savefig(f"evidence_accumulation_{xlims[0]}_{xlims[1]}.png")
 
 # %% ###########################################################################################################
 # Plot weight time courses
@@ -734,9 +744,7 @@ axs[-1].set_xlim(0, steps["task"])
 
 fig.align_ylabels()
 fig.tight_layout()
-
-fig.savefig('acc_weights.png')
-
+fig.savefig("evidence_accumulation_weights.png")
 
 # %% ###########################################################################################################
 # Plot weight matrices
@@ -780,4 +788,6 @@ axs[2, 0].yaxis.get_major_locator().set_params(integer=True)
 cbar = plt.colorbar(cmesh, cax=axs[1, 1].inset_axes([1.1, 0.2, 0.05, 0.8]), label="weight (pA)")
 
 fig.tight_layout()
-fig.savefig('acc_weight_mx.png')
+fig.savefig("evidence_accumulation_weights_matrices.png")
+
+plt.show()
