@@ -34,7 +34,7 @@ np.random.seed(rng_seed)  # fix numpy random seed
 
 # Define timing task
 n_batch = 64  # batch size, 64 in reference [2], 32 in the README to reference [2]
-n_iter = 200  # number of iterations, 2000 in reference [2], 50 with n_batch 32 converges
+n_iter = 400  # number of iterations, 2000 in reference [2], 50 with n_batch 32 converges
 
 n_input_symbols = 2  # number of input populations, e.g. 4 = left, right, recall, noise
 n_cues = 3  # number of cues given before decision
@@ -79,7 +79,7 @@ params_setup = {
     "eprop_update_interval": duration["sequence"],  # ms, time interval for updating the synaptic weights
     "print_time": False,  # if True, print time progress bar during simulation, set False if run as code cell
     "resolution": duration["step"],
-    "total_num_virtual_procs": 1,  # number of virtual processes, set in case of distributed computing
+    "total_num_virtual_procs": 4,  # number of virtual processes, set in case of distributed computing
 }
 
 nest.ResetKernel()
@@ -686,9 +686,6 @@ with open(summary_file, "w") as f:
 
     f.write("Recall Error Per Iteration:\n")
     f.write(", ".join(f"{e:.4f}" for e in recall_errors) + "\n\n")
-
-    f.write("Target Labels:\n")
-    f.write(", ".join(str(k) for k in target_cues_list) + "\n")
 
     f.write("\n== Runtime ==\n")
     f.write(f"Total runtime: {elapsed_time:.2f} seconds (~{elapsed_minutes:.2f} minutes)\n")
