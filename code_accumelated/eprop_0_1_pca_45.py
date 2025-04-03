@@ -34,7 +34,7 @@ np.random.seed(rng_seed)  # fix numpy random seed
 
 # Define timing task
 n_batch = 64  # batch size, 64 in reference [2], 32 in the README to reference [2]
-n_iter = 400  # number of iterations, 2000 in reference [2], 50 with n_batch 32 converges
+n_iter = 300  # number of iterations, 2000 in reference [2], 50 with n_batch 32 converges
 
 n_input_symbols = 2  # number of input populations, e.g. 4 = left, right, recall, noise
 n_cues = 3  # number of cues given before decision
@@ -87,8 +87,8 @@ nest.set(**params_setup)
 
 ### Create neurons
 n_in = 30  # number of input neurons
-n_ad = 120  # number of adaptive neurons
-n_reg = 120  # number of regular neurons
+n_ad = 240  # number of adaptive neurons
+n_reg = 240  # number of regular neurons
 n_rec = n_ad + n_reg  # number of recurrent neurons
 n_out = 2  # number of readout neurons
 
@@ -662,6 +662,9 @@ end_time = time.time()
 elapsed_time = end_time - start_time
 elapsed_minutes = elapsed_time / 60
 
+# Calculate the mean recall error per iteration and std
+mean_error = np.mean(recall_errors)
+std_error = np.std(recall_errors)
 
 # Make a txt file with variables
 today_str = datetime.now().strftime("%Y-%m-%d:%H-%M-%S")
