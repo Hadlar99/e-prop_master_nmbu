@@ -33,8 +33,8 @@ rng_seed = 1  # numpy random seed
 np.random.seed(rng_seed)  # fix numpy random seed
 
 # Define timing task
-n_batch = 64  # batch size, 64 in reference [2], 32 in the README to reference [2]
-n_iter = 300  # number of iterations, 2000 in reference [2], 50 with n_batch 32 converges
+n_batch = 32  # batch size, 64 in reference [2], 32 in the README to reference [2]
+n_iter = 400  # number of iterations, 2000 in reference [2], 50 with n_batch 32 converges
 
 n_input_symbols = 2  # number of input populations, e.g. 4 = left, right, recall, noise
 n_cues = 3  # number of cues given before decision
@@ -686,6 +686,8 @@ with open(summary_file, "w") as f:
     f.write("== Final Metrics ==\n")
     f.write(f"Final Training Loss: {loss[-1]:.4f}\n")
     f.write(f"Final Accuracy: {accuracy[-1]:.4f}\n\n")
+    f.write(f"Mean recall error: {mean_error:.4f}\n")
+    f.write(f"Standard Devation recall error: {std_error:.4f}\n")
 
     f.write("Recall Error Per Iteration:\n")
     f.write(", ".join(f"{e:.4f}" for e in recall_errors) + "\n\n")
