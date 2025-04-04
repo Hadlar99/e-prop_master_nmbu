@@ -33,8 +33,8 @@ rng_seed = 1  # numpy random seed
 np.random.seed(rng_seed)  # fix numpy random seed
 
 # Define timing task
-n_batch = 32  # batch size, 64 in reference [2], 32 in the README to reference [2]
-n_iter = 400  # number of iterations, 2000 in reference [2], 50 with n_batch 32 converges
+n_batch = 64  # batch size, 64 in reference [2], 32 in the README to reference [2]
+n_iter = 300  # number of iterations, 2000 in reference [2], 50 with n_batch 32 converges
 
 n_input_symbols = 2  # number of input populations, e.g. 4 = left, right, recall, noise
 n_cues = 3  # number of cues given before decision
@@ -87,8 +87,8 @@ nest.set(**params_setup)
 
 ### Create neurons
 n_in = 30  # number of input neurons
-n_ad = 240  # number of adaptive neurons
-n_reg = 240  # number of regular neurons
+n_ad = 60  # number of adaptive neurons
+n_reg = 60  # number of regular neurons
 n_rec = n_ad + n_reg  # number of recurrent neurons
 n_out = 2  # number of readout neurons
 
@@ -309,7 +309,7 @@ nest.GetConnections(nrns_rec[0], nrns_rec[1:3]).set([params_init_optimizer] * 2)
 
 ## Create input and output spike generators
 data = {}
-for number in range(n_out):
+for number in range(1,4,n_out):
     data[number] = {}
     for sample in range(45):
         df = pd.read_csv(f"/mnt/users/hastabbe/data/encoded_long/{number}_01_{sample}_enc_long.csv")
