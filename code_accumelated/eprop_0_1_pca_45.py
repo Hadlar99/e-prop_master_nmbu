@@ -33,8 +33,8 @@ rng_seed = 1  # numpy random seed
 np.random.seed(rng_seed)  # fix numpy random seed
 
 # Define timing task
-n_batch = 64  # batch size, 64 in reference [2], 32 in the README to reference [2]
-n_iter = 400  # number of iterations, 2000 in reference [2], 50 with n_batch 32 converges
+n_batch = 55  # batch size, 64 in reference [2], 32 in the README to reference [2]
+n_iter = 350  # number of iterations, 2000 in reference [2], 50 with n_batch 32 converges
 
 n_input_symbols = 2  # number of input populations, e.g. 4 = left, right, recall, noise
 n_cues = 3  # number of cues given before decision
@@ -231,7 +231,7 @@ params_common_syn_eprop = {
         "beta_1": 0.9,  # exponential decay rate for 1st moment estimate of Adam optimizer
         "beta_2": 0.999,  # exponential decay rate for 2nd moment raw estimate of Adam optimizer
         "epsilon": 1e-8,  # small numerical stabilization constant of Adam optimizer
-        "eta": 5e-3,  # learning rate
+        "eta": 5e-4,  # learning rate
         "Wmin": -100.0,  # pA, minimal limit of the synaptic weights
         "Wmax": 100.0,  # pA, maximal limit of the synaptic weights
     },
@@ -312,7 +312,7 @@ data = {}
 for number in range(n_out):
     data[number] = {}
     for sample in range(45):
-        df = pd.read_csv(f"/mnt/users/hastabbe/data/encoded_long/{number}_01_{sample}_enc_long.csv")
+        df = pd.read_csv(f"/home/hastabbe/encoded_long/{number}_01_{sample}_enc_long.csv")
         df = df.iloc[:, 1:].T
         data[number][sample] = df
 
