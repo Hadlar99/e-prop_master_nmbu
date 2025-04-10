@@ -34,7 +34,7 @@ np.random.seed(rng_seed)  # fix numpy random seed
 
 # Define timing task
 n_batch = 64  # batch size, 64 in reference [2], 32 in the README to reference [2]
-n_iter = 300  # number of iterations, 2000 in reference [2], 50 with n_batch 32 converges
+n_iter = 400  # number of iterations, 2000 in reference [2], 50 with n_batch 32 converges
 
 n_input_symbols = 2  # number of input populations, e.g. 4 = left, right, recall, noise
 n_cues = 3  # number of cues given before decision
@@ -657,6 +657,24 @@ fig.tight_layout()
 
 plt.savefig(os.path.join(plots_dir, "weights_matrix.png"))
 plt.close()
+
+# Combine all into one DataFrame with connection type
+all_weights = []
+
+for conn_name, conn_data in weights_post_train.items():
+    df = pd.DataFrame({
+        "source": conn_data["source"],
+        "target": conn_data["target"],
+        "weight": conn_data["weight"],
+        "connection": conn_name  # label the connection type
+    })
+    all_weights.append(df)
+
+df_all = pd.concat(all_weights, ignore_index=True)
+
+# Save weights to same path as summary file
+weights_file = os.path.join(output_dir, "all_weights.csv")
+df_all.to_csv(weights_file, index=False)
 
 end_time = time.time()
 elapsed_time = end_time - start_time
