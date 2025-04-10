@@ -343,7 +343,7 @@ data = {}
 for number in range(n_out):
     data[number] = {}
     for sample in range(45):
-        df = pd.read_csv(f"/home/hastabbe/encoded_long/{number}_01_{sample}_enc_long.csv")
+        df = pd.read_csv(f"/mnt/users/hastabbe/data/encoded_long/{number}_01_{sample}_enc_long.csv")
         df = df.iloc[:, 1:].T
         data[number][sample] = df
 
