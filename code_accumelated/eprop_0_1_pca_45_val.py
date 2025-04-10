@@ -19,7 +19,7 @@ start_time = time.time()
 
 # Create folder name with today's date
 today = datetime.now().strftime("%Y-%m-%d")
-output_dir = f"results_{today}"
+output_dir = f"results_val_{today}"
 plots_dir = os.path.join(output_dir, "plots")
 os.makedirs(plots_dir, exist_ok=True)
 # Image display
@@ -710,24 +710,6 @@ fig.tight_layout()
 
 plt.savefig(os.path.join(plots_dir, "weights_matrix.png"))
 plt.close()
-
-# Combine all into one DataFrame with connection type
-all_weights = []
-
-for conn_name, conn_data in weights_post_train.items():
-    df = pd.DataFrame({
-        "source": conn_data["source"],
-        "target": conn_data["target"],
-        "weight": conn_data["weight"],
-        "connection": conn_name  # label the connection type
-    })
-    all_weights.append(df)
-
-df_all = pd.concat(all_weights, ignore_index=True)
-
-# Save weights to same path as summary file
-weights_file = os.path.join(output_dir, "all_weights.csv")
-df_all.to_csv(weights_file, index=False)
 
 end_time = time.time()
 elapsed_time = end_time - start_time
