@@ -33,8 +33,8 @@ rng_seed = 1  # numpy random seed
 np.random.seed(rng_seed)  # fix numpy random seed
 
 # Define timing task
-n_batch = 64  # batch size, 64 in reference [2], 32 in the README to reference [2]
-n_iter = 300  # number of iterations, 2000 in reference [2], 50 with n_batch 32 converges
+n_batch = 50  # batch size, 64 in reference [2], 32 in the README to reference [2]
+n_iter = 200  # number of iterations, 2000 in reference [2], 50 with n_batch 32 converges
 
 n_input_symbols = 2  # number of input populations, e.g. 4 = left, right, recall, noise
 n_cues = 3  # number of cues given before decision
@@ -309,10 +309,10 @@ nest.GetConnections(nrns_rec[0], nrns_rec[1:3]).set([params_init_optimizer] * 2)
 
 ## Create input and output spike generators
 data = {}
-for number in range(1,4,n_out):
+for number in range(n_out):
     data[number] = {}
     for sample in range(45):
-        df = pd.read_csv(f"/mnt/users/hastabbe/data/encoded_long/{number}_01_{sample}_enc_long.csv")
+        df = pd.read_csv(f"/home/hastabbe/encoded_long/{number}_01_{sample}_enc_long.csv")
         df = df.iloc[:, 1:].T
         data[number][sample] = df
 
@@ -385,60 +385,6 @@ def generate_evidence_accumulation_input_output(
 
 dtype_in_rates = np.float32  # Data type of input rates (e.g., for reproducibility)
 
-# Lists to collect input/output data
-input_spike_bools_list = []
-target_cues_list = []
-
-# Generate inputs and outputs over all iterations
-for _ in range(n_iter):
-    input_spike_bools, target_cues = generate_evidence_accumulation_input_output(
-    n_batch, n_in, processed_data, n_cues, steps, add_noise=False
-)
-    input_spike_bools_list.append(input_spike_bools)
-    target_cues_list.extend(target_cues)
-
-# Reshape to (steps["task"], n_in)
-input_spike_bools_arr = np.array(input_spike_bools_list).reshape(steps["task"], n_in)
-
-# Build timeline for all input steps
-timeline_task = np.arange(0.0, duration["task"], duration["step"]) + duration["offset_gen"]
-
-# Convert spike booleans to rate-based input (e.g., 1.0 for spike, 0.0 for no spike)
-rate_matrix = input_spike_bools_arr.astype(dtype_in_rates)
-
-# Build rate input parameters per neuron
-params_gen_spk_in = []
-
-for nrn_in_idx in range(n_in):
-    rate_values = rate_matrix[:, nrn_in_idx]
-
-    # Store rate-based input for this neuron
-    params_gen_spk_in.append({
-        "rate_times": timeline_task.astype(dtype_in_rates),
-        "rate_values": rate_values
-    })
-
-# Generate target cue signal as before
-target_rate_changes = np.zeros((n_out, n_batch * n_iter), dtype=np.float32)
-target_rate_changes[np.array(target_cues_list), np.arange(n_batch * n_iter)] = 1
-
-# Generate target output parameters per neuron
-params_gen_rate_target = [
-    {
-        "amplitude_times": np.arange(0.0, duration["task"], duration["sequence"]) + duration["total_offset"],
-        "amplitude_values": target_rate_changes[nrn_out_idx]
-    }
-    for nrn_out_idx in range(n_out)
-]
-
-nest.SetStatus(gen_spk_in, params_gen_spk_in)
-nest.SetStatus(gen_rate_target, params_gen_rate_target)
-
-## Force final update
-gen_spk_final_update = nest.Create("spike_generator", 1, {"spike_times": [duration["task"] + duration["delays"]]})
-
-nest.Connect(gen_spk_final_update, nrns_in + nrns_rec, "all_to_all", {"weight": 1000.0})
-
 ## Read out pre-training weights
 def get_weights(pop_pre, pop_post):
     conns = nest.GetConnections(pop_pre, pop_post).get(["source", "target", "weight"])
@@ -456,8 +402,113 @@ weights_pre_train = {
     "rec_out": get_weights(nrns_rec, nrns_out),
 }
 
-## Run simulation
-nest.Simulate(duration["sim"])
+all_losses = []
+all_accuracies = []
+
+# Create final update spike generator (before loop)
+gen_spk_final_update = nest.Create("spike_generator", 1, {
+    "spike_times": [duration["task"] + duration["delays"]]
+})
+nest.Connect(gen_spk_final_update, nrns_in + nrns_rec, "all_to_all", {"weight": 1000.0})
+
+
+# Update timing for a single batch
+steps["task"] = n_batch * steps["sequence"]
+duration["task"] = steps["task"] * duration["step"]
+duration["sim"] = duration["task"] + duration["total_offset"] + duration["extension_sim"]
+
+# Generate inputs and outputs over all iterations
+for _ in range(n_iter):
+    input_spike_bools, target_cues = generate_evidence_accumulation_input_output(
+    n_batch, n_in, processed_data, n_cues, steps, add_noise=False
+)
+
+    # Reshape to (steps["task"], n_in)
+    input_spike_bools_arr = np.array(input_spike_bools).reshape(steps["task"], n_in)
+
+    current_offset = _ * duration["sim"]
+    timeline_task = np.arange(0.0, duration["task"], duration["step"]) + duration["offset_gen"] +current_offset
+
+    # Convert spike booleans to rate-based input (e.g., 1.0 for spike, 0.0 for no spike)
+    rate_matrix = input_spike_bools_arr.astype(dtype_in_rates)
+
+    # Build rate input parameters per neuron
+    params_gen_spk_in = []
+
+    for nrn_in_idx in range(n_in):
+        rate_values = rate_matrix[:, nrn_in_idx]
+
+        # Store rate-based input for this neuron
+        params_gen_spk_in.append({
+            "rate_times": timeline_task.astype(dtype_in_rates),
+            "rate_values": rate_values
+        })
+
+    # Generate target cue signal as before
+    target_rate_changes = np.zeros((n_out, n_batch), dtype=np.float32)
+    target_rate_changes[np.array(target_cues), np.arange(n_batch)] = 1
+
+    # Generate target output parameters per neuron
+    params_gen_rate_target = [
+        {
+            "amplitude_times": np.arange(0.0, duration["task"], duration["sequence"]) + duration["total_offset"] + current_offset,
+            "amplitude_values": target_rate_changes[nrn_out_idx]
+        }
+        for nrn_out_idx in range(n_out)
+    ]
+
+    nest.SetStatus(gen_spk_in, params_gen_spk_in)
+    nest.SetStatus(gen_rate_target, params_gen_rate_target)
+
+# --- Create temporary batch recorder for this iteration only ---
+    mm_out_batch = nest.Create("multimeter", {
+        "interval": duration["step"],
+        "record_from": ["readout_signal", "target_signal"],
+        "start": duration["total_offset"] + current_offset,
+        "stop": duration["total_offset"] + current_offset + duration["task"]
+    })
+    nest.Connect(mm_out_batch, nrns_out, "all_to_all")
+
+    # --- Simulate ---
+    nest.Simulate(duration["sim"])
+
+    # --- Get per-batch loss and accuracy ---
+    events = mm_out_batch.get("events")
+    readout_signal = events["readout_signal"]
+    target_signal = events["target_signal"]
+    senders = events["senders"]
+
+    readout_signal = np.array([readout_signal[senders == i] for i in set(senders)])
+    target_signal = np.array([target_signal[senders == i] for i in set(senders)])
+
+    readout_signal = readout_signal.reshape((n_out, 1, n_batch, steps["sequence"]))[:, :, :, -steps["learning_window"] :]
+    target_signal = target_signal.reshape((n_out, 1, n_batch, steps["sequence"]))[:, :, :, -steps["learning_window"] :]
+
+    loss = -np.mean(np.sum(target_signal * np.log(readout_signal + 1e-12), axis=0), axis=(1, 2))
+    y_prediction = np.argmax(np.mean(readout_signal, axis=3), axis=0)
+    y_target = np.argmax(np.mean(target_signal, axis=3), axis=0)
+    accuracy = np.mean((y_target == y_prediction), axis=1)
+
+    all_losses.append(loss[0])
+    all_accuracies.append(accuracy[0])
+
+    print(f"Iteration { _ + 1}/{n_iter}: Loss = {loss[0]:.4f}, Accuracy = {accuracy[0]*100:.2f}%")
+
+
+# After loop ends, force final weight update
+nest.Simulate(duration["step"])  # ensures all final weight updates happen
+
+
+# --- Plot the accuracy and loss over iterations ---
+fig, axs = plt.subplots(2, 1, sharex=True)
+axs[0].plot(range(1, n_iter + 1), all_losses)
+axs[0].set_ylabel("Loss")
+axs[1].plot(range(1, n_iter + 1), all_accuracies)
+axs[1].set_ylabel("Accuracy")
+axs[-1].set_xlabel("Iteration")
+axs[-1].set_xlim(1, n_iter)
+axs[-1].xaxis.get_major_locator().set_params(integer=True)
+fig.tight_layout()
 
 ## Read out post-training weights
 weights_post_train = {
@@ -528,8 +579,7 @@ axs[-1].set_xlim(1, n_iter)
 axs[-1].xaxis.get_major_locator().set_params(integer=True)
 
 fig.tight_layout()
-plt.savefig(os.path.join(plots_dir, "training_error.png"))
-plt.close()
+
 
 ## Plot spikes and dynamic variables
 def plot_recordable(ax, events, recordable, ylabel, xlims):
@@ -581,8 +631,7 @@ for xlims in [(0, steps["sequence"]), (steps["task"] - steps["sequence"], steps[
 
     fig.align_ylabels()
 
-    plt.savefig(os.path.join(plots_dir, f"dynamic_vars_{xlims[0]}_{xlims[1]}.png"))
-    plt.close()
+
 
 ## Plot weights time courses
 def plot_weight_time_course(ax, events, nrns_senders, nrns_targets, label, ylabel):
@@ -614,8 +663,7 @@ axs[-1].set_xlim(0, steps["task"])
 
 fig.align_ylabels()
 fig.tight_layout()
-plt.savefig(os.path.join(plots_dir, "weights_time_course.png"))
-plt.close()
+
 
 ## Plot weight matrices
 
@@ -655,9 +703,8 @@ cbar = plt.colorbar(cmesh, cax=axs[1, 1].inset_axes([1.1, 0.2, 0.05, 0.8]), labe
 
 fig.tight_layout()
 
-plt.savefig(os.path.join(plots_dir, "weights_matrix.png"))
-plt.close()
-
+plt.show()
+"""
 end_time = time.time()
 elapsed_time = end_time - start_time
 elapsed_minutes = elapsed_time / 60
@@ -694,4 +741,6 @@ with open(summary_file, "w") as f:
 
     f.write("\n== Runtime ==\n")
     f.write(f"Total runtime: {elapsed_time:.2f} seconds (~{elapsed_minutes:.2f} minutes)\n")
-    f.write("=== End of Summary ===\n")
+    f.write("=== End of Summary ===\n")"
+
+"""
