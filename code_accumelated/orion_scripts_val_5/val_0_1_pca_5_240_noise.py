@@ -336,7 +336,7 @@ def apply_loaded_weights(csv_path):
             print(f"Error applying weight: {e}")
 
 
-apply_loaded_weights("/mnt/users/hastabbe/e-prop_master_nmbu/code_accumelated/orion_scripts_training_5/results_2025-04-17_5_240_neurons_noise/weights_5_240_noise.csv")
+apply_loaded_weights("/mnt/users/hastabbe/e-prop_master_nmbu/code_accumelated/orion_scripts_training_5/results_2025-04-17_5_240_neruons_noise/weights_5_240_noise.csv")
 
 ## Create input and output spike generators
 data = {}
