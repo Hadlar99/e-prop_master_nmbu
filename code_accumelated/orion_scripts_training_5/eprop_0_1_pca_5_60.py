@@ -311,7 +311,7 @@ nest.GetConnections(nrns_rec[0], nrns_rec[1:3]).set([params_init_optimizer] * 2)
 data = {}
 for number in range(n_out):
     data[number] = {}
-    for sample in range(45):
+    for sample in range(5):
         df = pd.read_csv(f"/mnt/users/hastabbe/data/encoded_long/{number}_01_{sample}_enc_long.csv")
         df = df.iloc[:, 1:].T
         data[number][sample] = df
