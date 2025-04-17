@@ -19,7 +19,7 @@ start_time = time.time()
 
 # Create folder name with today's date
 today = datetime.now().strftime("%Y-%m-%d")
-output_dir = f"results_val_{today}"
+output_dir = f"results_val_{today}_45_60_noise"
 plots_dir = os.path.join(output_dir, "plots")
 os.makedirs(plots_dir, exist_ok=True)
 # Image display
@@ -88,8 +88,8 @@ nest.set(**params_setup)
 
 ### Create neurons
 n_in = 30  # number of input neurons
-n_ad = 60  # number of adaptive neurons
-n_reg = 60  # number of regular neurons
+n_ad = 30  # number of adaptive neurons
+n_reg = 30  # number of regular neurons
 n_rec = n_ad + n_reg  # number of recurrent neurons
 n_out = 2  # number of readout neurons
 
@@ -333,16 +333,16 @@ def apply_loaded_weights(csv_path):
             else:
                 print(f"No connection found from {source_id} → {target_id}")
         except nest.kernel.NESTError as e:
-            print(f"❌ Error applying weight: {e}")
+            print(f"Error applying weight: {e}")
 
 
-apply_loaded_weights("/mnt/users/hastabbe/e-prop_master_nmbu/code_accumelated/results_2025-04-10/all_weights.csv")
+apply_loaded_weights("/mnt/users/hastabbe/e-prop_master_nmbu/code_accumelated/orion_scripts_training_45/results_2025-04-17_60neurons_noise/weights_60_noise.csv")
 
 ## Create input and output spike generators
 data = {}
 for number in range(n_out):
     data[number] = {}
-    for sample in range(45):
+    for sample in range(45, 50):
         df = pd.read_csv(f"/mnt/users/hastabbe/data/encoded_long/{number}_01_{sample}_enc_long.csv")
         df = df.iloc[:, 1:].T
         data[number][sample] = df
@@ -741,6 +741,11 @@ with open(summary_file, "w") as f:
     f.write(f"Final Accuracy: {accuracy[-1]:.4f}\n\n")
     f.write(f"Mean recall error: {mean_error:.4f}\n")
     f.write(f"Standard Devation recall error: {std_error:.4f}\n")
+
+    f.write("== Simulation Parameters ==\n")
+    f.write(f"add_noise: True\n")
+    f.write(f"Number of samples used for training: {len(data[number])}\n")
+    f.write(f"Number of cues: {n_cues}\n")
 
     f.write("Recall Error Per Iteration:\n")
     f.write(", ".join(f"{e:.4f}" for e in recall_errors) + "\n\n")
