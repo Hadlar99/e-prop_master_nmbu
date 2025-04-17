@@ -18,7 +18,7 @@ start_time = time.time()
 
 # Create folder name with today's date
 today = datetime.now().strftime("%Y-%m-%d")
-output_dir = f"results_{today}"
+output_dir = f"results_{today}_5_120_neruons_noise"
 plots_dir = os.path.join(output_dir, "plots")
 os.makedirs(plots_dir, exist_ok=True)
 # Image display
@@ -311,7 +311,7 @@ nest.GetConnections(nrns_rec[0], nrns_rec[1:3]).set([params_init_optimizer] * 2)
 data = {}
 for number in range(n_out):
     data[number] = {}
-    for sample in range(45):
+    for sample in range(5):
         df = pd.read_csv(f"/mnt/users/hastabbe/data/encoded_long/{number}_01_{sample}_enc_long.csv")
         df = df.iloc[:, 1:].T
         data[number][sample] = df
@@ -392,7 +392,7 @@ target_cues_list = []
 # Generate inputs and outputs over all iterations
 for _ in range(n_iter):
     input_spike_bools, target_cues = generate_evidence_accumulation_input_output(
-    n_batch, n_in, processed_data, n_cues, steps, add_noise=False
+    n_batch, n_in, processed_data, n_cues, steps, add_noise=True
 )
     input_spike_bools_list.append(input_spike_bools)
     target_cues_list.extend(target_cues)
@@ -673,7 +673,7 @@ for conn_name, conn_data in weights_post_train.items():
 df_all = pd.concat(all_weights, ignore_index=True)
 
 # Save weights to same path as summary file
-weights_file = os.path.join(output_dir, "all_weights.csv")
+weights_file = os.path.join(output_dir, "weights_5_120_noise.csv")
 df_all.to_csv(weights_file, index=False)
 
 end_time = time.time()
@@ -700,6 +700,11 @@ with open(summary_file, "w") as f:
     f.write(f"n_reg (regular neurons): {n_reg}\n")
     f.write(f"n_rec (recurrent neurons): {n_rec}\n")
     f.write(f"n_out (output neurons): {n_out}\n\n")
+
+    f.write("== Simulation Parameters ==\n")
+    f.write(f"add_noise: True\n")
+    f.write(f"Number of samples used for training: {len(data[number])}\n")
+    f.write(f"Number of cues: {n_cues}\n")
 
     f.write("== Final Metrics ==\n")
     f.write(f"Final Training Loss: {loss[-1]:.4f}\n")
