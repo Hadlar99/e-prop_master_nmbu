@@ -19,7 +19,7 @@ start_time = time.time()
 
 # Create folder name with today's date
 today = datetime.now().strftime("%Y-%m-%d")
-output_dir = f"results_val_{today}_5_120"
+output_dir = f"results_val_{today}_45_240_2_5"
 plots_dir = os.path.join(output_dir, "plots")
 os.makedirs(plots_dir, exist_ok=True)
 # Image display
@@ -88,8 +88,8 @@ nest.set(**params_setup)
 
 ### Create neurons
 n_in = 30  # number of input neurons
-n_ad = 60  # number of adaptive neurons
-n_reg = 60  # number of regular neurons
+n_ad = 120  # number of adaptive neurons
+n_reg = 120  # number of regular neurons
 n_rec = n_ad + n_reg  # number of recurrent neurons
 n_out = 2  # number of readout neurons
 
@@ -336,15 +336,15 @@ def apply_loaded_weights(csv_path):
             print(f"Error applying weight: {e}")
 
 
-apply_loaded_weights("/mnt/users/hastabbe/e-prop_master_nmbu/code_accumelated/orion_scripts_training_5/results_2025-04-18_5_120_neruons/weights_5_120.csv")
+apply_loaded_weights("/mnt/users/hastabbe/e-prop_master_nmbu/code_accumelated/orion_scripts_training_45/results_2025-04-18_240_neruons_2_5/weights_240.csv")
 
 ## Create input and output spike generators
 raw_data = {}
 all_samples = []
 
-for number in range(n_out):
+for number in [2,5]:
     raw_data[number] = {}
-    for sample in range(5,50):
+    for sample in range(45,50):
         df = pd.read_csv(f"/mnt/users/hastabbe/data/encoded_long/{number}_01_{sample}_enc_long.csv")
         df = df.iloc[:, 1:].T  # Transpose so that time steps are rows
         # Pad or truncate BEFORE PCA

@@ -336,39 +336,41 @@ def apply_loaded_weights(csv_path):
             print(f"Error applying weight: {e}")
 
 
-apply_loaded_weights("/mnt/users/hastabbe/e-prop_master_nmbu/code_accumelated/orion_scripts_training_45/results_2025-04-17_60neurons/weights_60.csv")
+apply_loaded_weights("/mnt/users/hastabbe/e-prop_master_nmbu/code_accumelated/orion_scripts_training_45/results_2025-04-18_60neurons/weights_60.csv")
 
 ## Create input and output spike generators
-data = {}
+raw_data = {}
+all_samples = []
+
 for number in range(n_out):
-    data[number] = {}
-    for sample in range(45, 50):
+    raw_data[number] = {}
+    for sample in range(45,50):
         df = pd.read_csv(f"/mnt/users/hastabbe/data/encoded_long/{number}_01_{sample}_enc_long.csv")
-        df = df.iloc[:, 1:].T
-        data[number][sample] = df
+        df = df.iloc[:, 1:].T  # Transpose so that time steps are rows
+        # Pad or truncate BEFORE PCA
+        if df.shape[0] < steps["cue"]:
+            df = pd.concat([df, pd.DataFrame(np.zeros((steps["cue"] - df.shape[0], df.shape[1])), columns=df.columns)], axis=0)
+        else:
+            df = df.iloc[:steps["cue"], :]
+        raw_data[number][sample] = df
+        all_samples.append(df.values)
 
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.decomposition import PCA
 
-scaler_max = 500
-scaler = MinMaxScaler(feature_range=(0, scaler_max))
-
+all_data_matrix = np.vstack(all_samples)
 pca = PCA(n_components=20)
+pca.fit(all_data_matrix)
+
+scaler = MinMaxScaler(feature_range=(0, 500))
+scaler.fit(pca.transform(all_data_matrix))
 
 
 processed_data = {}
-for number, df_outer in data.items():
-    processed_data[number]={}
-    for sample, df in df_outer.items():
-        scaled = pca.fit_transform(df)
-        scaled = scaler.fit_transform(scaled)
-        
 
-        if scaled.shape[0] < steps["cue"]:
-            scaled = np.vstack((scaled, np.zeros((steps["cue"] - scaled.shape[0], pca.n_components_))))
-        else:
-            scaled = scaled[:steps["cue"], :]
-    
+for number, samples in raw_data.items():
+    processed_data[number] = {}
+    for sample, df in samples.items():
+        reduced = pca.transform(df)
+        scaled = scaler.transform(reduced)
         processed_data[number][sample] = scaled
 
 def generate_evidence_accumulation_input_output(
