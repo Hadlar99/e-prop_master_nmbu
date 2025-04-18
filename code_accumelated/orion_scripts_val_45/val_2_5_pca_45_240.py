@@ -359,9 +359,11 @@ for number in [2,5]:
 all_data_matrix = np.vstack(all_samples)
 pca = PCA(n_components=20)
 pca.fit(all_data_matrix)
+scaler_max = 500
 
-scaler = MinMaxScaler(feature_range=(0, 500))
+scaler = MinMaxScaler(feature_range=(0, scaler_max))
 scaler.fit(pca.transform(all_data_matrix))
+
 
 
 processed_data = {}

@@ -359,8 +359,9 @@ for number in [4, 8]:
 all_data_matrix = np.vstack(all_samples)
 pca = PCA(n_components=20)
 pca.fit(all_data_matrix)
+scaler_max = 500
 
-scaler = MinMaxScaler(feature_range=(0, 500))
+scaler = MinMaxScaler(feature_range=(0, scaler_max))
 scaler.fit(pca.transform(all_data_matrix))
 
 
