@@ -336,7 +336,7 @@ def apply_loaded_weights(csv_path):
             print(f"Error applying weight: {e}")
 
 
-apply_loaded_weights("/mnt/users/hastabbe/e-prop_master_nmbu/code_accumelated/orion_scripts_training_5/results_2025-04-18_5_60_neurons/weights_5_60.csv")
+apply_loaded_weights("/mnt/users/hastabbe/e-prop_master_nmbu/code_accumelated/orion_scripts_training_5/results_2025-04-22_5_60_neurons/weights_5_60.csv")
 
 ## Create input and output spike generators
 raw_data = {}
@@ -747,8 +747,9 @@ with open(summary_file, "w") as f:
     f.write(f"Standard Devation recall error: {std_error:.4f}\n")
 
     f.write("== Simulation Parameters ==\n")
-    f.write(f"add_noise: True\n")
-    f.write(f"Number of samples used for training: {len(data[number])}\n")
+    f.write(f"add_noise: False\n")
+    f.write(f"Number of samples used for training: {len(raw_data[number])}\n")
+    f.write(f"Samples used: {raw_data.keys()}")
     f.write(f"Number of cues: {n_cues}\n")
 
     f.write("Recall Error Per Iteration:\n")

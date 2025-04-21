@@ -708,7 +708,8 @@ with open(summary_file, "w") as f:
 
     f.write("== Simulation Parameters ==\n")
     f.write(f"add_noise: True\n")
-    f.write(f"Number of samples used for training: {len(data[number])}\n")
+    f.write(f"Number of samples used for training: {len(raw_data[number])}\n")
+    f.write(f"Samples used: {raw_data.keys()}")
     f.write(f"Number of cues: {n_cues}\n")
 
 
