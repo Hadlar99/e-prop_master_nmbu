@@ -336,7 +336,7 @@ def apply_loaded_weights(csv_path):
             print(f"Error applying weight: {e}")
 
 
-apply_loaded_weights("/mnt/users/hastabbe/e-prop_master_nmbu/code_accumelated/orion_scripts_training_45/results_2025-05-01_240_neruons_4_8_list_2/weights_240.csv")
+apply_loaded_weights("/mnt/users/hastabbe/e-prop_master_nmbu/code_accumelated/orion_scripts_train_4_8_val/results_2025-05-01_240_neruons_4_8_list_2/weights_240.csv")
 
 ## Load the number list from the csv file
 list_train = pd.read_csv("/mnt/users/hastabbe/e-prop_master_nmbu/code_accumelated/orion_scripts_train_4_8_val/list2.csv")
