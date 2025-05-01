@@ -342,7 +342,7 @@ apply_loaded_weights("/mnt/users/hastabbe/e-prop_master_nmbu/code_accumelated/or
 list_train = pd.read_csv("/mnt/users/hastabbe/e-prop_master_nmbu/code_accumelated/orion_scripts_train_4_8_val/list4.csv")
 
 # Create a list of numbers from the csv file
-samples_list = list_train["New List"].tolist()
+samples_list = list_train["New List"].dropna().tolist()
 
 train_number = [int(num) for num in samples_list]
 ## Create input and output spike generators
