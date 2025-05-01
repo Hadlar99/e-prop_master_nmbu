@@ -307,20 +307,14 @@ nest.Connect(mm_out, nrns_out, params_conn_all_to_all, params_syn_static)
 
 nest.GetConnections(nrns_rec[0], nrns_rec[1:3]).set([params_init_optimizer] * 2)
 
-## Load the number list from the csv file
-list_train = pd.read_csv("/home/hastabbe/e-prop_master_nmbu/code_accumelated/orion_scripts_train_4_8_val/list1.csv")
-
-# Create a list of numbers from the csv file
-train_number = list_train["Original List"].tolist()
-
 ## Create input and output spike generators
 raw_data = {}
 all_samples = []
 
 for number in [4, 8]:
     raw_data[number] = {}
-    for sample in train_number:
-        df = pd.read_csv(f"/home/hastabbe/encoded_long/{number}_01_{sample}_enc_long.csv")
+    for sample in range(45):
+        df = pd.read_csv(f"/mnt/users/hastabbe/data/encoded_long/{number}_01_{sample}_enc_long.csv")
         df = df.iloc[:, 1:].T  # Transpose so that time steps are rows
         # Pad or truncate BEFORE PCA
         if df.shape[0] < steps["cue"]:
