@@ -18,7 +18,7 @@ start_time = time.time()
 
 # Create folder name with today's date
 today = datetime.now().strftime("%Y-%m-%d")
-output_dir = f"results_{today}_240_neruons_4_8_list_1"
+output_dir = f"results_{today}_240_neruons_4_8_list_3"
 plots_dir = os.path.join(output_dir, "plots")
 os.makedirs(plots_dir, exist_ok=True)
 # Image display
@@ -308,7 +308,7 @@ nest.Connect(mm_out, nrns_out, params_conn_all_to_all, params_syn_static)
 nest.GetConnections(nrns_rec[0], nrns_rec[1:3]).set([params_init_optimizer] * 2)
 
 ## Load the number list from the csv file
-list_train = pd.read_csv("/mnt/users/hastabbe/e-prop_master_nmbu/code_accumelated/orion_scripts_train_4_8_val/list1.csv")
+list_train = pd.read_csv("/mnt/users/hastabbe/e-prop_master_nmbu/code_accumelated/orion_scripts_train_4_8_val/list3.csv")
 
 # Create a list of numbers from the csv file
 train_number = list_train["Original List"].tolist()
