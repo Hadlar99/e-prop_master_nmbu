@@ -428,15 +428,9 @@ for nrn_in_idx in range(n_in):
         "rate_values": rate_values
     })
 
-# Define your mapping from actual target values to neuron indices
-cue_to_output_index = {4: 0, 8: 1}  # or whatever you intend
-
-# Apply the mapping
-mapped_target_indices = np.array([cue_to_output_index[cue] for cue in target_cues_list])
-
 # Generate target cue signal as before
 target_rate_changes = np.zeros((n_out, n_batch * n_iter), dtype=np.float32)
-target_rate_changes[mapped_target_indices, np.arange(n_batch * n_iter)] = 1
+target_rate_changes[np.array(target_cues_list), np.arange(n_batch * n_iter)] = 1
 
 # Generate target output parameters per neuron
 params_gen_rate_target = [
