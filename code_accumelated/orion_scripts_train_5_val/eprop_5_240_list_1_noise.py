@@ -18,7 +18,7 @@ start_time = time.time()
 
 # Create folder name with today's date
 today = datetime.now().strftime("%Y-%m-%d")
-output_dir = f"results_5_{today}_240_neruons_0_1_list_1"
+output_dir = f"results_5_{today}_240_neruons_0_1_noise_list_1"
 plots_dir = os.path.join(output_dir, "plots")
 os.makedirs(plots_dir, exist_ok=True)
 # Image display
